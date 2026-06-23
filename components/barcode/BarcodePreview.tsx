@@ -10,7 +10,6 @@ interface BarcodeProps {
 
 export function BarcodePreview({ value, format }: BarcodeProps) {
   const ref = useRef<SVGSVGElement | null>(null);
-
   useEffect(() => {
     if (!ref.current || !value) return;
 
@@ -20,5 +19,8 @@ export function BarcodePreview({ value, format }: BarcodeProps) {
     });
   }, [value]);
 
+  if (!value) {
+    return <p className="text-gray-500">Enter text to generate Barcode</p>;
+  }
   return <svg ref={ref} />;
 }
