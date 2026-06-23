@@ -11,5 +11,5 @@ export function QrPreview({ value }: QRCodeProps) {
     return <p className="text-gray-500">Enter text to generate QR</p>;
   }
 
-  return <QRCode value={value}/>;
+  return <QRCode value={value} />;
 }
