@@ -1,65 +1,153 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import QRCode from "react-qr-code";
+import JsBarcode from "jsbarcode";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function Home() {
+  const [qrType, setQrType] = useState("url");
+  const [barcodeType, setBarcodeType] = useState("CODE128");
+
+  const [text, setText] = useState("");
+  const [wifi, setWifi] = useState({ ssid: "", password: "" });
+  const [upi, setUpi] = useState({ pa: "", name: "", amount: "" });
+
+  const generateQRValue = () => {
+    switch (qrType) {
+      case "wifi":
+        return `WIFI:T:WPA;S:${wifi.ssid};P:${wifi.password};;`;
+      case "upi":
+        return `upi://pay?pa=${upi.pa}&pn=${upi.name}&am=${upi.amount}`;
+      case "url":
+      default:
+        return text;
+    }
+  };
+
+  const renderBarcode = (node: SVGSVGElement | null) => {
+    if (!node || !text) return;
+
+    JsBarcode(node, text, {
+      format: barcodeType,
+      displayValue: true,
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 space-y-6">
+
+        <h1 className="text-2xl font-bold text-center">
+          QR & Barcode Suite
+        </h1>
+
+        <Tabs defaultValue="qr" className="w-full">
+
+          {/* Tabs */}
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="qr">QR Code</TabsTrigger>
+            <TabsTrigger value="barcode">Barcode</TabsTrigger>
+          </TabsList>
+
+          {/* QR TAB */}
+          <TabsContent value="qr" className="space-y-4">
+
+            <Select value={qrType} onValueChange={setQrType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select QR Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="url">URL / Text</SelectItem>
+                <SelectItem value="wifi">WiFi</SelectItem>
+                <SelectItem value="upi">UPI Payment</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {qrType === "url" && (
+              <input
+                className="w-full border p-2 rounded"
+                placeholder="Enter URL or text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+            )}
+
+            {qrType === "wifi" && (
+              <div className="space-y-2">
+                <input
+                  className="w-full border p-2 rounded"
+                  placeholder="WiFi SSID"
+                  value={wifi.ssid}
+                  onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
+                />
+                <input
+                  className="w-full border p-2 rounded"
+                  placeholder="Password"
+                  value={wifi.password}
+                  onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
+                />
+              </div>
+            )}
+
+            {qrType === "upi" && (
+              <div className="space-y-2">
+                <input
+                  className="w-full border p-2 rounded"
+                  placeholder="UPI ID"
+                  value={upi.pa}
+                  onChange={(e) => setUpi({ ...upi, pa: e.target.value })}
+                />
+                <input
+                  className="w-full border p-2 rounded"
+                  placeholder="Name"
+                  value={upi.name}
+                  onChange={(e) => setUpi({ ...upi, name: e.target.value })}
+                />
+                <input
+                  className="w-full border p-2 rounded"
+                  placeholder="Amount"
+                  value={upi.amount}
+                  onChange={(e) => setUpi({ ...upi, amount: e.target.value })}
+                />
+              </div>
+            )}
+
+            <div className="flex justify-center pt-4">
+              <QRCode value={generateQRValue()} />
+            </div>
+          </TabsContent>
+
+          {/* BARCODE TAB */}
+          <TabsContent value="barcode" className="space-y-4">
+
+            <Select value={barcodeType} onValueChange={setBarcodeType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Barcode Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CODE128">CODE128</SelectItem>
+                <SelectItem value="CODE39">CODE39</SelectItem>
+                <SelectItem value="EAN13">EAN13</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <input
+              className="w-full border p-2 rounded"
+              placeholder="Enter barcode value"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+            <div className="flex justify-center pt-4">
+              <svg ref={renderBarcode as any} />
+            </div>
+
+          </TabsContent>
+
+        </Tabs>
+      </div>
+    </main>
   );
 }
