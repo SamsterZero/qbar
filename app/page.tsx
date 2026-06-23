@@ -1,10 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import JsBarcode from "jsbarcode";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UrlForm } from "@/components/qr/forms/UrlForm";
+import { WifiForm } from "@/components/qr/forms/WifiForm";
+import { UpiForm } from "@/components/qr/forms/UpiForm";
+import { QrPreview } from "@/components/qr/QrPreview";
+import { BarcodePreview } from "@/components/barcode/BarcodePreview";
 
 export default function Home() {
   const [qrType, setQrType] = useState("url");
@@ -26,25 +37,12 @@ export default function Home() {
     }
   };
 
-  const renderBarcode = (node: SVGSVGElement | null) => {
-    if (!node || !text) return;
-
-    JsBarcode(node, text, {
-      format: barcodeType,
-      displayValue: true,
-    });
-  };
-
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 space-y-6">
-
-        <h1 className="text-2xl font-bold text-center">
-          QR & Barcode Suite
-        </h1>
+        <h1 className="text-2xl font-bold text-center">QR & Barcode Suite</h1>
 
         <Tabs defaultValue="qr" className="w-full">
-
           {/* Tabs */}
           <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="qr">QR Code</TabsTrigger>
@@ -53,7 +51,6 @@ export default function Home() {
 
           {/* QR TAB */}
           <TabsContent value="qr" className="space-y-4">
-
             <Select value={qrType} onValueChange={setQrType}>
               <SelectTrigger>
                 <SelectValue placeholder="Select QR Type" />
@@ -65,63 +62,19 @@ export default function Home() {
               </SelectContent>
             </Select>
 
-            {qrType === "url" && (
-              <input
-                className="w-full border p-2 rounded"
-                placeholder="Enter URL or text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-              />
-            )}
+            {qrType === "url" && <UrlForm value={text} onChange={setText} />}
 
-            {qrType === "wifi" && (
-              <div className="space-y-2">
-                <input
-                  className="w-full border p-2 rounded"
-                  placeholder="WiFi SSID"
-                  value={wifi.ssid}
-                  onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
-                />
-                <input
-                  className="w-full border p-2 rounded"
-                  placeholder="Password"
-                  value={wifi.password}
-                  onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
-                />
-              </div>
-            )}
+            {qrType === "wifi" && <WifiForm value={wifi} onChange={setWifi} />}
 
-            {qrType === "upi" && (
-              <div className="space-y-2">
-                <input
-                  className="w-full border p-2 rounded"
-                  placeholder="UPI ID"
-                  value={upi.pa}
-                  onChange={(e) => setUpi({ ...upi, pa: e.target.value })}
-                />
-                <input
-                  className="w-full border p-2 rounded"
-                  placeholder="Name"
-                  value={upi.name}
-                  onChange={(e) => setUpi({ ...upi, name: e.target.value })}
-                />
-                <input
-                  className="w-full border p-2 rounded"
-                  placeholder="Amount"
-                  value={upi.amount}
-                  onChange={(e) => setUpi({ ...upi, amount: e.target.value })}
-                />
-              </div>
-            )}
+            {qrType === "upi" && <UpiForm value={upi} onChange={setUpi} />}
 
             <div className="flex justify-center pt-4">
-              <QRCode value={generateQRValue()} />
+              <QrPreview value={generateQRValue()} />
             </div>
           </TabsContent>
 
           {/* BARCODE TAB */}
           <TabsContent value="barcode" className="space-y-4">
-
             <Select value={barcodeType} onValueChange={setBarcodeType}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Barcode Type" />
@@ -141,11 +94,9 @@ export default function Home() {
             />
 
             <div className="flex justify-center pt-4">
-              <svg ref={renderBarcode as any} />
+              <BarcodePreview value={text} format={barcodeType} />
             </div>
-
           </TabsContent>
-
         </Tabs>
       </div>
     </main>

@@ -5,9 +5,10 @@ import JsBarcode from "jsbarcode";
 
 type BarcodeProps = {
   value: string;
+  format: string;
 };
 
-export function BarcodeComponent({ value }: BarcodeProps) {
+export function BarcodePreview({ value, format }: BarcodeProps) {
   const ref = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
@@ -19,9 +20,5 @@ export function BarcodeComponent({ value }: BarcodeProps) {
     });
   }, [value]);
 
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <svg ref={ref} />
-    </div>
-  );
+  return <svg ref={ref} />;
 }

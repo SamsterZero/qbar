@@ -6,10 +6,10 @@ type QRCodeProps = {
   value: string;
 };
 
-export function QRCodeComponent({ value }: QRCodeProps) {
+export function QrPreview({ value }: QRCodeProps) {
   if (!value) {
     return <p className="text-gray-500">Enter text to generate QR</p>;
   }
 
-  return <QRCode value={value} />;
+  return <QRCode value={value}/>;
 }
