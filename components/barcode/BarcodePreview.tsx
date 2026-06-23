@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import JsBarcode from "jsbarcode";
 
-type BarcodeProps = {
+interface BarcodeProps {
   value: string;
   format: string;
 };
@@ -15,7 +15,7 @@ export function BarcodePreview({ value, format }: BarcodeProps) {
     if (!ref.current || !value) return;
 
     JsBarcode(ref.current, value, {
-      format: "CODE128",
+      format: format,
       displayValue: true,
     });
   }, [value]);
